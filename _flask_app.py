@@ -7,6 +7,8 @@ Kevin Ni, kevin.ni@nyu.edu.
 """
 
 from flask import Flask
+from _a_big_red_button.support.configuration import BOOT_CFG
+from _a_big_red_button.crawler._original_crawler_script import WoKSpider
 
 # main application
-app = Flask('_a_big_red_button')
+app = Flask(BOOT_CFG.flask.application_name)

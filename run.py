@@ -6,11 +6,12 @@ about to do.
 
 Kevin Ni, kevin.ni@nyu.edu.
 """
-
+import sys
 import time
 import threading
 import webbrowser
 from _flask_app import app
+from _a_big_red_button.support.configuration import BOOT_CFG, RUNNING_IN_DEV_ENV
 import threading
 
 
@@ -18,7 +19,8 @@ class GUILauncher(threading.Thread):
     def run(self) -> None:
         time.sleep(3)
         print("backend should be ready, opening GUI page...")
-        webbrowser.open('http://localhost:16560')
+        webbrowser.open(f'http://{BOOT_CFG.flask.address.host}:'
+                        f'{BOOT_CFG.flask.address.port}')
 
 
 if __name__ == '__main__':
@@ -37,4 +39,8 @@ if __name__ == '__main__':
 
     # launch the backend
     print("starting backend, press Ctrl-C (Control-C on Mac) to stop...")
-    app.run('0.0.0.0', 16560, debug=False)
+    if RUNNING_IN_DEV_ENV and 'NO_DEBUG' not in sys.argv:
+        app.run(BOOT_CFG.flask.address.host, BOOT_CFG.flask.address.port, debug=True)
+    else:
+        app.run(BOOT_CFG.flask.address.host, BOOT_CFG.flask.address.port, debug=False)
+

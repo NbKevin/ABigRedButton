@@ -1,0 +1,16 @@
+# This file describes the basic properties that would be applied globally to all loggers
+
+# formatter for logged messages
+formatter: "%(asctime)s |  %(name)8s | %(levelname)8s | %(message)s"
+
+# directory where log files are to be stored
+# must be relative to the project root, aka. the deployment root
+directory: "log"
+
+# logging level, respectively in debug and release mode
+level:
+  debug: DEBUG
+  release: INFO
+
+# if enabled, all loggers other than the one targeting std.err would be ignored
+ignore_non_std_err_handler: true

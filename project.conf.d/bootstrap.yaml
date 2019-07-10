@@ -1,0 +1,12 @@
+flask:
+  application_name: ABigRedButton
+  debug: true
+  address:
+    host: 127.0.0.1
+    port: 16560
+  auto_detect_deploy_env: true
+  secret: "9834,h5khjdaf9y4hfit3qykasdifasdlf9843t" # safely generated
+
+env:
+  use_dev_env_variable: true
+  dev_env_variable_name: "LOQYU_DEV_ENV"
