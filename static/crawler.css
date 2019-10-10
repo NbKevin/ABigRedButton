@@ -1,0 +1,303 @@
+/* base style */
+@import url('https://fonts.googleapis.com/css?family=Playfair+Display:400,400i,700,700i|Noto+Sans+SC&display=swap');
+
+* {
+    font-family: 'Playfair Display', 'Noto Sans SC', sans-serif !important;
+    color: #8f8f87;
+}
+
+body {
+    background: rgba(4, 4, 4, 0.83);
+}
+
+button {
+    background: none;
+    border: none;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    cursor: pointer;
+    transition: color 0.75s;
+    font-size: 100%;
+    /*font-style: italic;*/
+    font-weight: bold;
+}
+
+button:hover {
+    color: #b8b8ae;
+}
+
+textarea {
+    background: #908e8e;
+    color: #212121;
+    font-family: "Andale Mono", "Monaco", monospace !important;
+    border: none;
+}
+
+input {
+    background: #908e8e;
+    color: #212121;
+    font-family: "Andale Mono", "Monaco", monospace !important;
+    border: none;
+}
+
+input[type=file] {
+    display: none;
+}
+
+/* end of base style */
+
+div.enclosing-container {
+    height: 100%;
+    width: 90%;
+    overflow: hidden;
+    padding-top: 5vh;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-bottom: 5vh;
+}
+
+div.controls-container {
+    width: 60%;
+    height: 55vh;
+    display: inline-block;
+    vertical-align: top;
+}
+
+div.term-box-container {
+    width: 100%;
+}
+
+
+div.controls-container div.controls-buttons-group {
+    margin-bottom: .5em;
+}
+
+div.controls-container div.controls-buttons-group {
+    margin-top: .75em;
+    margin-bottom: .75em;
+}
+
+div.controls-container div.controls-buttons-group button {
+    margin: 0 0.5em;
+}
+
+div.controls-container div.controls-buttons-group label {
+    margin: 0 0.5em;
+}
+
+div.controls-container div.controls-buttons-group label.file-input-label {
+    cursor: pointer;
+    font-family: monospace !important;
+    color: #807e88;
+}
+
+div.controls-container div.controls-buttons-group input {
+    max-width: 6em;
+    margin-left:.5em;
+    margin-right: .5em;
+    font-family: "Andale Mono", "Monaco", monospace !important;
+}
+
+div.status-container {
+    width: 30%;
+    display: inline-block;
+    height: 50vh;
+    margin-left: 5%;
+    vertical-align: top;
+}
+
+div.status-container div.status-group {
+    max-width: 90%;
+    margin-bottom: 3em;
+}
+
+div.status-container div.status-group:last-of-type {
+    margin-bottom: 0;
+}
+
+div.status-container div.status-group p.status-figure {
+    font-size: 20pt;
+    margin-top: 0;
+    margin-bottom: 10pt;
+    font-weight: bold;
+}
+
+div.status-container div.status-group p.status-label {
+    font-size: 10pt;
+    text-transform: uppercase;
+}
+
+
+div.controls-container textarea#term-box {
+    width: 80%;
+    height: 20%;
+    resize: none !important;
+    font-size: 110%;
+}
+
+
+div.console-container {
+    width: 100%;
+    height: 30vh;
+    overflow: hidden;
+}
+
+div#console {
+    height: 65%;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+div#console-title {
+    height: 15%;
+}
+
+div#console p {
+    max-width: 100%;
+    margin-bottom: 0.5em;
+    margin-top: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+    font-family: "Andale Mono", "Monaco", monospace !important;
+}
+
+div.session-container {
+    height: 57.5vh;
+    overflow-y: auto;
+}
+
+div.session-container div.session {
+    margin-bottom: 5%;
+}
+
+div.session-container div.session-left, div.session-right {
+    display: inline-block;
+    vertical-align: top;
+}
+
+div.session-container div.session-left {
+    width: 70%;
+}
+
+div.session-container div.session-right {
+    width: 25%;
+}
+
+div.session-container p.session-term, p.session-id span, p.session-crawled span, p.session-ranges span   {
+    font-family: "Andale Mono", "Monaco", monospace !important;
+    /*max-width: 60%;*/
+}
+
+
+div.session-container p.session-term {
+    font-size: 150%;
+}
+
+div.session-container p.session-id {
+    margin-bottom: 0;
+}
+
+div.session-container p.session-ranges {
+    margin-top: 0.35em;
+}
+
+div.session-container p.session-ranges span, p.session-crawled span {
+    margin-left: 0.5em;
+}
+
+div.session-container p.session-size span {
+    font-weight: bold;
+    font-size: 3em;
+    margin-top: 0.1em;
+    font-family: "Andale Mono", "Monaco", monospace !important;
+}
+
+div.session-container div.session-right {
+    text-align: right;
+}
+
+div.session-container div.session-right p, div.session-right button {
+    display: inline-block;
+    padding-right: 0;
+}
+
+div.session-container hr {
+    border: none;
+    background: #8f8f87;
+    width: 10%;
+    height: 5px;
+    margin: 0;
+    margin-top: 1em;
+}
+
+div.session-container div.session-right label.session-export-button {
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    cursor: pointer;
+}
+
+/* TERM ASSEMBLER */
+div.term-assembler-container {
+    width: 90vw;
+}
+
+div.term-assembler-container textarea#term-assemble-box {
+    width: 80%;
+}
+
+div.term-assembler-container div.term-controls-container button {
+    font-size: 1.15em;
+}
+
+/* SEARCH RESULT */
+div#result-main-title p {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+div.result-group-title {
+    font-size: 1.35em;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+div.result-group-container {
+    margin-top: 3.5em;
+}
+
+div.result-group {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+div.result-group p {
+    font-family: monospace !important;
+    font-size: 1.5em;
+    margin-right: 2em;
+}
+
+div.result-group p a {
+    text-decoration: none;
+    transition: color 0.75s;
+    font-family: inherit !important;
+}
+
+div.result-group p a:hover {
+    color: #b8b8ae;
+}
+
+
+/* LOCAL SEARCH */
+div.local-search-container label {
+    font-size: 1.5em;
+}
+
+div.local-search-container input {
+    font-size: 1.5em;
+    margin-top: 1em;
+}
+
+div.local-search-container button {
+    font-size: 1.5em;
+}

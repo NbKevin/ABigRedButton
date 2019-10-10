@@ -18,12 +18,16 @@ logger = get_logger('crawler')
 config = get_config('crawler')
 
 
-class WoKDOIArticle:
+def normalize_name_abbr(name: str):
+    return name.strip().replace(',', '').replace('.', '').upper()
+
+
+class WoKCitation:
     @staticmethod
     def make_empty():
-        return WoKDOIArticle('', '',
-                             2100,
-                             None, '', None, None)
+        return WoKCitation('', '',
+                           2100,
+                           None, '', None, None)
 
     def __init__(self,
                  journal: str,
@@ -59,6 +63,17 @@ class WoKDOIArticle:
         return f'Article(author={self.first_author}, journal={self.journal},' \
             f'doi={self.doi})'
 
+    def as_export_dict(self):
+        export_names = config.export_names.citation.copy()
+        export_dict = dict()
+        for name in export_names:
+            try:
+                export_dict[name] = getattr(self, name)
+            except AttributeError:
+                logger.error(f"citation has no such field [{name}]")
+                return None
+        return export_dict
+
 
 class WoKPrintArticle:
     # load name map
@@ -67,7 +82,7 @@ class WoKPrintArticle:
     class PrimitiveAttributePair:
         def __init__(self, name: str, value: List[str]):
             self.name: str = name
-            self.value: Union[WoKDOIArticle, str, List[str], int] = value
+            self.value: Union[WoKCitation, str, List[str], int] = value
             self.clean_up_name()
             self.clean_up_value()
             self.parse_value()
@@ -103,9 +118,18 @@ class WoKPrintArticle:
             if len(self.value) == 1:
                 self.value = self.value[0]
 
-                if self.name == '作者' or self.name == '作者关键词' or \
-                        self.name == 'Keywords Plus':
+                if self.name == '作者' or self.name == '作者关键词':
                     self.value = split_by()(self.value)
+                    if self.name == '作者':
+                        new_authors = []
+                        for raw_author in self.value:
+                            abbr, full = raw_author[:-1].split('(')
+                            new_authors.append(
+                                {'abbr': normalize_name_abbr(abbr.strip()),
+                                 'full': full.strip()})
+                        self.value = new_authors
+                elif self.name in ('研究方向', '电子邮件地址', 'KeyWords Plus', 'Web of Science 类别'):
+                    self.value = list(map(lambda s: s.strip(), split_by(';')(self.value)))
                 else:
                     try:
                         self.value = as_int(self.value)
@@ -118,7 +142,7 @@ class WoKPrintArticle:
                     values = citation.replace('\n', '').split(', ')
                     if not any(filter(lambda value: value.startswith('DOI'), values)):
                         continue
-                    as_doi = WoKDOIArticle.make_empty()
+                    as_doi = WoKCitation.make_empty()
                     bad_citation = False
                     for i in range(3):
                         setattr(as_doi, fields[i], values[i])
@@ -126,6 +150,7 @@ class WoKPrintArticle:
                             logger.warning(f'citation [{citation}] has no author, discarded')
                             bad_citation = True
                             break
+                    as_doi.first_author = normalize_name_abbr(as_doi.first_author)
                     if bad_citation:
                         continue
                     for value in values[3:]:
@@ -148,12 +173,78 @@ class WoKPrintArticle:
         self.source = source
         self.attributes = list(self.find_all_attributes())
 
-    def has_attributes(self, attribute: str):
+    def as_export_dict(self):
+        export_names = sorted(config.export_names.article.copy())
+        export_dict = dict()
+        for name in export_names:
+            try:
+                value = getattr(self, name)
+                if isinstance(value, WoKCitation):
+                    export_dict[name] = value.as_export_dict()
+                elif isinstance(value, List):
+                    export_dict[name] = list(
+                        map(lambda raw: raw.as_export_dict() if isinstance(raw, WoKCitation) else raw, value))
+                else:
+                    export_dict[name] = value  # should be all basic fields now
+            except (AttributeError, ValueError):
+                export_dict[name] = None
+                logger.warning(f"cannot export field [{name}] of {self}")
+        return export_dict
+
+    def has_attribute(self, attribute: str):
         try:
             _ = getattr(self, attribute)
             return True
         except ValueError:
             return False
+
+    def validate_attributes(self):
+        # validate key attributes and make sure they are valid
+        for field in ['name', 'doi', 'journal']:
+            if not self.has_attribute(field):
+                raise ValueError(f'invalid article: no attribute "{field}"')
+            value = getattr(self, field)
+            if not isinstance(value, str) or not value:
+                raise ValueError(f'invalid article: invalid attribute '
+                                 f'"{field}" = {value}')
+        if not self.has_attribute('year'):
+            raise ValueError(f'invalid article: no attribute "year"')
+        year_ = getattr(self, 'year')
+        if not isinstance(year_, str) and (not isinstance(year_, int) or year_ not in range(1500, 2030)):
+            raise ValueError(f'invalid article: invalid attribute: '
+                             f'"year" = {year_}')
+        if not self.has_attribute('citation'):
+            raise ValueError(f'invalid article: no citation')
+        citations = getattr(self, 'citation')
+        if not isinstance(citations, list):
+            raise ValueError(f'invalid article: '
+                             f'invalid citation: "{citations}"')
+        new_citation = []
+        for citation in citations:
+            if not isinstance(citation, WoKCitation):
+                logger.warning(f'ignored invalid citation: '
+                               f'"{citation}"')
+                continue
+            for field in ['first_author', 'doi', 'journal']:
+                value = getattr(citation, field)
+                if not isinstance(value, str) or not value:
+                    logger.warning(f'ignored invalid citation: '
+                                   f'invalid {field}: '
+                                   f'"{value}"')
+                    break
+            else:
+                year = citation.year
+                if not isinstance(year, int) or \
+                        year not in range(1500, 2030):
+                    logger.warning(f'ignored invalid citation: '
+                                   f'invalid year: "{year}"')
+                    continue
+                new_citation.append(citation)
+
+        # update citation
+        for attribute in self.attributes:
+            if attribute.name == 'citation':
+                attribute.value = new_citation
 
     def __getattr__(self, name):
         # map ascii attributes names to actual fields
@@ -195,12 +286,13 @@ class WoKPrintArticle:
 
 
 class WoKPrintList:
-    def __init__(self, source: 'TextIO'):
+    def __init__(self, source: 'TextIO', start: int, end: int):
         self.source = source
+        self.start, self.end = start, end
         self.root = etree.parse(self.source, etree.HTMLParser(recover=True, encoding='UTF-8'))
 
     def __repr__(self):
-        return "WokPrintList()"
+        return f"WokPrintList({self.start} -> {self.end})"
 
     def find_all_articles(self, year_range: Optional[range] = None):
         count = 0
@@ -208,10 +300,10 @@ class WoKPrintList:
             count += 1
             try:
                 article = WoKPrintArticle(table)
-                if not article.has_attributes('doi'):
+                article.validate_attributes()
+                if not article.has_attribute('doi'):
                     logger.warning(f'article(name={article.title}) has no DOI, discarded')
                     continue
-                print(article)
                 if year_range is not None:
                     # try parse the year
                     year = article.year
@@ -232,9 +324,8 @@ class WoKPrintList:
                 else:
                     yield article
             except Exception as e:
-                logger.warning('cannot parse this specific article, skipped')
+                logger.warning(f'cannot parse article {count}, skipped')
                 logger.debug(f"exception says: {e}")
-                logger.debug(f'also says: this is article {count} in this print list')
 
         if count == 0:
             logger.warning(f"{self} no articles found, this print list may be broken")

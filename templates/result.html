@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WoK: Searching for “{{ name }}”</title>
+    <link rel="stylesheet" href="/static/crawler.css">
+    <script src="/static/crawler.js" type="application/ecmascript"></script>
+</head>
+<body>
+<script type="application/ecmascript">
+  _asdConfig = {
+    useProgressBar: false,
+    parseFields: false
+  };
+</script>
+<div class="enclosing-container">
+    <div class="result-container">
+        <div id="result-main-title"><p>INFORMATION FOUND ABOUT “{{ name }}”</p></div>
+        <div class="result-group-container">
+            <div class="result-group-title"><p>EMAILS</p></div>
+            <div class="result-group">
+                {% for email in result.emails %}
+                    <p>{{ email }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="result-group-container">
+            <div class="result-group-title"><p>DOI (PUBLICATION)</p></div>
+            <div class="result-group">
+                {% for doi in result.doi %}
+                    <p>{{ doi }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="result-group-container">
+            <div class="result-group-title"><p>CO-AUTHORS</p></div>
+            <div class="result-group">
+                {% for coauthor in result.coauthors %}
+                    <p><a href="/search/{{ coauthor.abbr }}" target="_blank">{{ coauthor.full }}
+                        ({{ coauthor.abbr }})</a></p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="result-group-container">
+            <div class="result-group-title"><p>KEYWORDS</p></div>
+            <div class="result-group">
+                {% for keyword in result.keywords %}
+                    <p>{{ keyword }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="result-group-container">
+            <div class="result-group-title"><p>CITATION</p></div>
+            <div class="result-group">
+                {% for citation in result.citation %}
+                    <p>{{ citation.first_author }} [{{ citation.doi }}]</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WoK: Search</title>
+    <link rel="stylesheet" href="/static/crawler.css">
+    <script src="/static/crawler.js" type="application/ecmascript"></script>
+</head>
+<body>
+<script type="application/ecmascript">
+  _asdConfig = {
+    useProgressBar: false,
+    parseFields: true,
+    preventLeave: false
+  };
+</script>
+<div class="enclosing-container">
+    <div class="local-search-container">
+
+            <label for="local-search-name">SEARCH FOR INFORMATION ABOUT A GIVEN AUTHOR</label><br>
+            <input id="local-search-name" placeholder="ie. KEVIN NI">
+        <button onclick="window.location.href = '/search/' + document.querySelector('#local-search-name').value">SEARCH</button>
+    </div>
+</div>
+</body>
+</html>

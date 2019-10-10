@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WoK: Terms</title>
+    <link rel="stylesheet" href="/static/crawler.css">
+    <script src="/static/crawler.js" type="application/ecmascript"></script>
+</head>
+<body>
+<script type="application/ecmascript">
+  _asdConfig = {
+    useProgressBar: false,
+    parseFields: true,
+    availableFields: {
+  {% for f in available_fields %}
+    {{ f["field"] }}: "{{ f['field_explanation'] }}",
+  {% endfor %}
+  }
+  }
+  ;
+</script>
+<div class="enclosing-container">
+    <div class="term-assembler-container">
+        <textarea id="term-assemble-box" placeholder="put in search term here">
+
+        </textarea><br/>
+        <div class="term-controls-container" id="term-text-control">
+            <p>TEXT</p>
+            <button onclick="asd.undo()">UNDO</button>
+            <button onclick="asd.copyAssembledTermToClipboard()">COPY TO CLIPBOARD</button>
+        </div>
+        <div class="term-controls-container" id="term-fields-control">
+            <p>FIELDS</p>
+            {% for f in available_fields %}
+                <button onclick="asd.addTerm('{{ f["field"] }}')">{{ f["explanation"]|upper }}</button>
+            {% endfor %}
+        </div>
+        <div class="term-controls-container" id="term-operators-control">
+            <p>RELATIONS</p>
+            <button onclick="asd.addConditionGroup()">GROUP</button>
+            <button onclick="asd.addAnd()">AND</button>
+            <button onclick="asd.addNot()">NOT</button>
+            <button onclick="asd.addOr()">OR</button>
+            <div class="term-controls-input-contauner">
+                <button onclick="asd.addRangeTerm()">RANGE</button>
+                <span>from</span>
+                <input id="term-range-from">
+                <span>to</span>
+                <input id="term-range-to">
+            </div>
+            <div class="term-controls-input-container">
+                <button onclick="asd.addStartingWithTerm()">STARTING WITH</button>
+                <input id="term-starting-with">
+            </div>
+            <div class="term-controls-input-container">
+                <button onclick="asd.addEndingWithTerm()">ENDING WITH</button>
+                <input id="term-ending-with">
+            </div>
+        </div>
+    </div>
+    <div class="console-container">
+        <div id="console-title"><p>LOGS</p></div>
+        <div id="console">
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

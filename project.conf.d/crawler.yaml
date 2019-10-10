@@ -12,8 +12,8 @@ name_map:
   authors: author
   quotewoscore: 'Web of Science 核心合集中的 "被引频次"'
   quote: 被引频次合计
-  quote180: "使用次数 (最近 180 天)"
-  quote2013: "使用次数 (2013 年至今)"
+  quote180: "使用次数\n    (最近 180 天)"
+  quote2013: "使用次数\n    (2013 年至今)"
   citation: 引用的参考文献
   cite: citation
   cites: citation
@@ -23,7 +23,7 @@ name_map:
   abstract: 摘要
   abs: abstract
   wosno: 入藏号
-  language: 入藏号
+  language: 语言  # FIXED determine what this field is actually called
   lang: language
   type: 文献类型
   keyword: 作者关键词
@@ -62,10 +62,71 @@ name_map:
   pp: page
   year: 出版年
 
+fields_validation:
+  name:
+    type: str
+    nullable: false
+  doi:
+    type: str
+    nullable: false
+  author:
+    type: list
+    nullable: false
+  citation:
+    type: list
+    nullable: false
+  keyword:
+    type: list
+    nullable: false
+  keywordplus:
+    type: list
+    nullable: false
 
+export_names:
+  article:
+    - title
+    - addr
+    - author
+    - quote
+    - quotewoscore
+    - quote180
+    - quote2013
+    - citation
+    - abstract
+    - wosno
+    - lang
+    - type
+    - keyword
+    - keywordplus
+    - cauthor
+    - email
+    - pub
+    - pubaddr
+    - wostype
+    - direction
+    - citecount
+    - ids
+    - issn
+    - eissn
+    - pubabbr
+    - pubisoabbr
+    - doi
+    - journal
+    - year
+    - v
+    - i
+    - p
+  citation:
+    - first_author
+    - journal
+    - volume
+    - issue
+    - page
+    - year
+    - doi
 
 url:
-  index: https://app.webofknowledge.com
+  index: https://apps.webofknowledge.com
   search: https://apps.webofknowledge.com/WOS_AdvancedSearch.do
   print_list: "https://apps.webofknowledge.com/OutboundService.do?action=go&displayCitedRefs=true&displayTimesCited=true&displayUsageInfo=true&viewType=summary&product=WOS&mark_id=WOS&colName=WOS&search_mode=AdvancedSearch&locale=zh_CN&view_name=WOS-summary&sortBy=PY.D%3BLD.D%3BSO.A%3BVL.D%3BPG.A%3BAU.A&mode=outputService&qid=1&SID={sid}&format=formatForPrint&filters=HIGHLY_CITED+HOT_PAPER+OPEN_ACCESS+PMID+USAGEIND+AUTHORSIDENTIFIERS+ACCESSION_NUM+FUNDING+SUBJECT_CATEGORY+JCR_CATEGORY+LANG+IDS+PAGEC+SABBR+CITREFC+ISSN+PUBINFO+KEYWORDS+CITTIMES+ADDRS+CONFERENCE_SPONSORS+DOCTYPE+CITREF+ABSTRACT+CONFERENCE_INFO+SOURCE+TITLE+AUTHORS++&selectedIds=&mark_to={to:d}&mark_from={from_:d}&queryNatural={term:s}&count_new_items_marked=0&MaxDataSetLimit=&use_two_ets=false&DataSetsRemaining=&IsAtMaxLimit=&IncitesEntitled=no&value(record_select_type)=range&markFrom={from_:d}&markTo={to:d}&fields_selection=HIGHLY_CITED+HOT_PAPER+OPEN_ACCESS+PMID+USAGEIND+AUTHORSIDENTIFIERS+ACCESSION_NUM+FUNDING+SUBJECT_CATEGORY+JCR_CATEGORY+LANG+IDS+PAGEC+SABBR+CITREFC+ISSN+PUBINFO+KEYWORDS+CITTIMES+ADDRS+CONFERENCE_SPONSORS+DOCTYPE+CITREF+ABSTRACT+CONFERENCE_INFO+SOURCE+TITLE+AUTHORS++&&"
 
@@ -110,3 +171,32 @@ form:
     # 'ss_numDefaultGeneralSearchFields': 1
     'rs_sort_by': 'PY.D;LD.D;SO.A;VL.D;PG.A;AU.A'
 
+search_fields:
+  TS: Topic
+  TI: Title
+  AU: Author
+  AI: Author Identifiers
+  GP: Group Author
+  ED: Editor
+  SO: Publication Name
+  DO: DOI
+  PY: Year Published
+  CF: Conference
+  AD: Address
+  OG: Organization-Enhanced
+  OO: Organization
+  SG: Suborganization
+  SA: Street Address
+  CI: City
+  PS: Province/State
+  CU: Country/Region
+  ZP: Zip/Postal Code
+  FO: Funding Agency
+  FG: Grant Number
+  FT: Funding Text
+  SU: Research Area
+  WC: Web of Science Category
+  IS: ISSN/ISBN
+  UT: Accession Number
+  PMID: PubMed ID
+  ALL: All Fields 

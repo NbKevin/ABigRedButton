@@ -7,12 +7,14 @@ Bin Ni. bn628@nyu.edu.
 
 import logging
 import logging.handlers
+from logging.handlers import BufferingHandler
 import os
-from threading import RLock
+import sys
+from queue import Full
+from threading import RLock, Lock
 from _a_big_red_button.support.configuration import BOOT_CFG, get_logger_config
 from _a_big_red_button.support.synchronisation import thread_safe
 from _a_big_red_button.support.directory import DEPLOYMENT_ROOT
-
 
 # records known loggers
 __KNOWN_LOGGERS = {}
@@ -34,7 +36,7 @@ __mutex = RLock()
 
 
 @thread_safe(__mutex)
-def get_logger(identifier: str) -> logging.Logger:
+def get_logger(identifier: str, *addition_handlers, force_add_additional: bool = False) -> logging.Logger:
     """
     Get a properly set up, ready-to-go logger associated with the given identifier.
     
@@ -43,6 +45,11 @@ def get_logger(identifier: str) -> logging.Logger:
     """
     # first check if this identifier is known
     if identifier in __KNOWN_LOGGERS:
+        if force_add_additional:
+            logger = __KNOWN_LOGGERS[identifier]
+            for handler in addition_handlers:
+                handler.setFormatter(__FORMATTER)
+                logger.addHandler(handler)
         return __KNOWN_LOGGERS[identifier]
 
     # otherwise create a new one
@@ -76,6 +83,11 @@ def get_logger(identifier: str) -> logging.Logger:
         logger.setLevel(__LOGGING_LEVEL)
         logger.addHandler(handler)
 
+    for handler in addition_handlers:
+        # we assume here that all additional loggers have been properly initialise
+        handler.setFormatter(__FORMATTER)
+        logger.addHandler(handler)
+
     # restore working directory in prevention of confusion
     os.chdir(old_working_dir)
 
@@ -96,3 +108,34 @@ def __test_log(logger: logging.Logger):
         logger.warning('Running under debug mode, ignoring any '
                        'handler not targeting standard error stream...')
     logger.debug('Logger up and ready')
+
+
+class BufferedHandler(BufferingHandler):
+    """
+    NEW July 10 2019
+
+    This class implements a very simple buffered log handler.
+    Use `extract_all` to extract all records and clear the buffer.
+    """
+
+    def __init__(self, capacity):
+        super().__init__(capacity)
+        self.mutex = Lock()
+
+    def emit(self, record):
+        self.mutex.acquire()
+        self.buffer.append(record)
+        if self.capacity and len(self.buffer) > self.capacity:
+            self.flush()
+        self.mutex.release()
+
+    def shouldFlush(self, record):
+        return False
+
+    def extract_all(self):
+        """Extract all the logs in the buffer and clear the buffer."""
+        self.mutex.acquire()
+        records = self.buffer
+        self.buffer = list()
+        self.mutex.release()
+        return records

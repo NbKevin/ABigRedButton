@@ -10,10 +10,17 @@ Kevin Ni. kevin.ni@nyu.edu.
 
 import json
 import yaml
+from typing import Union
+from itertools import islice
 
 
 class PyObjectLike:
     """Instances of this class open their attributes to modification."""
+
+    def __init__(self, source: dict = None):
+        if source is not None:
+            for key, value in source.items():
+                setattr(self, key, value)
 
     @property
     def dict(self) -> dict:
@@ -34,6 +41,13 @@ class PyObjectLike:
 
     def __setitem__(self, key, value):
         return setattr(self, key, value)
+
+    def clone(self):
+        return type(self)(self.dict)
+
+    def __str__(self):
+        source = islice(self.dict.items(), 3)
+        return f'PyObjectLike({", ".join(f"{pair[0]}={pair[1]}" for pair in source)})'
 
 
 def json_list_to_py_list(source: list, py_list: list):
@@ -67,14 +81,14 @@ def json_object_to_py_object(source: dict, py_object: PyObjectLike):
         if isinstance(value, dict):
             setattr(py_object, key, PyObjectLike())
             json_object_to_py_object(value, getattr(py_object, key))
-        elif isinstance(value, list):
+        elif isinstance(value, (list, set, frozenset)):
             setattr(py_object, key, list())
             json_list_to_py_list(value, getattr(py_object, key))
         else:
             setattr(py_object, key, value)
 
 
-def py_list_to_json_list(source: list, json_list: list):
+def py_list_to_json_list(source: Union[list, set, frozenset], json_list: list):
     """
     Convert a python list to JSON list.
 
@@ -86,7 +100,7 @@ def py_list_to_json_list(source: list, json_list: list):
             new_json = {}
             py_object_to_json_object(item, new_json)
             json_list.append(new_json)
-        elif isinstance(item, list):
+        elif isinstance(item, (list, set, frozenset)):
             new_list = []
             py_list_to_json_list(item, new_list)
             json_list.append(new_list)
@@ -148,7 +162,7 @@ def py_object_to_json_object(source_object: PyObjectLike, json_object: dict,
             new_dict = {}
             py_object_to_json_object(attribute, new_dict)
             json_object[attribute_name] = new_dict
-        elif isinstance(attribute, list):
+        elif isinstance(attribute, (list, set, frozenset)):
             new_list = []
             py_list_to_json_list(attribute, new_list)
             json_object[attribute_name] = new_list
@@ -168,6 +182,8 @@ class JsonFileAsPyObject(PyObjectLike):
 
         :param source: JSON file name.
         """
+        super().__init__()
+
         with open(str(source), encoding='utf-8') as source_json:
             json_dict = json.load(source_json)
         json_object_to_py_object(json_dict, self)
@@ -199,6 +215,8 @@ class YamlFileAsPyObject(PyObjectLike):
 
         :param source: Path to the target file.
         """
+        super().__init__()
+
         with open(str(source), mode='rt', encoding='utf-8') as source_fd:
             yaml_dict = yaml.safe_load(source_fd)
         json_object_to_py_object(yaml_dict, self)

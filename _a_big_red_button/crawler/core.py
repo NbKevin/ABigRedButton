@@ -18,10 +18,10 @@ import threading
 from _a_big_red_button.support.configuration import get_config
 from _a_big_red_button.support.log import get_logger
 from _a_big_red_button.crawler.print_list import WoKPrintList
-from _a_big_red_button.crawler.headless import SeleniumHeadless
+from _a_big_red_button.consolesync import CONSOLE_SYNC_HANDLER
 
 # get logger
-logger = get_logger('crawler')
+logger = get_logger('crawler', CONSOLE_SYNC_HANDLER, force_add_additional=True)
 
 # get config
 _config = get_config('crawler')
@@ -74,19 +74,20 @@ class WokSearchResult:
                 try:
                     start = self.task_queue.get(timeout=5)
                 except Empty:
-                    logger.debug(f"{self} no more available tasks")
+                    logger.debug(f"{self}: no more available tasks")
                     break
                 else:
                     if start is None:
-                        logger.info(f"{self} no more tasks at all")
+                        logger.info(f"{self}: no more tasks at all")
                         break
 
                     # notify the producer
                     self.task_queue.task_done()
 
                     # compute the request range
-                    end = start + self.step - 1
-                    end = min(end, self.result_count)
+                    # end = start + self.step - 1
+                    # end = min(end, self.result_count)
+                    (start, end) = start
 
                     # request the print list
                     url = WokSearchResult.assemble_print_list_url(
@@ -107,19 +108,19 @@ class WokSearchResult:
                     req.encoding = 'utf-8'  # force UTF-8
                     try:
                         self.result_queue.put(
-                            WoKPrintList(StringIO(req.text)), timeout=5)
+                            WoKPrintList(StringIO(req.text), start, end), timeout=5)
                     except Full:
                         logger.error(f"cannot put print list [{start} -> {end}] "
                                      f"back in queue: timed out")
                         logger.critical(f"PRINT LIST [{start} -> {end}] "
                                         f"HAS BEEN SKIPPED")
 
-            logger.info("print list request worker concluded")
+            logger.info(f"{self}: concluded")
 
     def request_all_print_lists(self, start_from, stop_by: int) -> \
             Generator[WoKPrintList, Any, Any]:
         # validate range and step
-        current_start = start_from
+        # or so called sanitising the parameters
         step = _config.core.result_iter_step
         if step > 50 or step < 10:
             logger.warning(f"iterating through all results using step = [{step}], "
@@ -128,10 +129,15 @@ class WokSearchResult:
             logger.warning(f"iterating through [{start_from} -> {stop_by}] "
                            f"exceeds maximum result number, using that instead")
             stop_by = self.result_count
+        if start_from < 1:
+            logger.warning(f"iterating through [{start_from} -> {stop_by}] "
+                           f"exceeds minimum result number, using 1 instead")
+            start_from = 1
+        current_start = start_from
 
         # determine starting points and enqueue them as tasks
         while current_start <= stop_by:
-            self.task_queue.put(current_start)
+            self.task_queue.put((current_start, min(current_start + step - 1, stop_by)))
             current_start += step
 
         # start worker threads
@@ -172,21 +178,16 @@ class WokSearch:
 
     @staticmethod
     def make_new_search():
-        logger.info("setting up headless browser using Firefox...")
-        browser = SeleniumHeadless.make_new_firefox()
-
         logger.info("making a new search...")
-        browser.get(_config.url.index)
+        session = requests.Session()
+        req = session.get(_config.url.index, headers=_config.headers.base.dict)
+        if req.status_code != 200:
+            raise RuntimeError(f'failed making a new search: status code [{req.status_code}]')
+        sid = WokSearch.extract_search_id_from_url(req.url)
+        return WokSearch(sid, req.url, session)
 
-        if not re.findall(r'Web of Science \[[v.0-9]+\].+', browser.title):
-            raise RuntimeError(f'failed making a new search: status code [{browser.status_code}]')
-
-        sid = WokSearch.extract_search_id_from_url(browser.current_url)
-        return WokSearch(browser, sid, browser.current_url, None)
-
-    def __init__(self, headless: SeleniumHeadless,
+    def __init__(self,
                  search_id: str, search_url: str, session: requests.Session):
-        self.headless = headless
         self.search_id = search_id
         self.session = session
         self.search_headers = self.assemble_search_headers()
@@ -205,6 +206,13 @@ class WokSearch:
         form['value(input1)'] = term
         return form
 
+    @staticmethod
+    def parse_error_message(root: etree):
+        error_message_node = root.xpath('//div[@id="searchErrorMessage"]/div[@class="errorText"]//text()')
+        if error_message_node is None or not error_message_node:
+            return None
+        return error_message_node[0]
+
     def search(self, term: str):
         logger.info(f"searching for [{term}]...")
         req = self.session.post(_config.url.search,
@@ -218,9 +226,14 @@ class WokSearch:
         result_url = root.xpath('//a[@id="hitCount"]/@href')
         result_count = root.xpath('//a[@id="hitCount"]//text()')
         if len(result_url) != 1 or len(result_count) != 1:
-            logger.error(f"invalid search response: {req.content}")
-            logger.critical("PROGRAM TERMINATED")
-            return
+            error_message = self.parse_error_message(root)
+            if error_message is None:
+                # logger.error(f"invalid search response: {req.content}")
+                logger.critical("PROGRAM TERMINATED")
+                raise RuntimeError('invalid response')
+            else:
+                logger.error(f"search failed: {error_message}")
+                raise RuntimeError(f'invalid search term: {error_message}')
 
         result_url = result_url[0]
         result_count = int(result_count[0].replace(',', ''))
@@ -244,8 +257,11 @@ if __name__ == "__main__":
 
     search = WokSearch.make_new_search()
     result = search.search(
-        "TS=((China OR PRC) AND (Shanghai))")
-    for print_list in result.request_all_print_lists(0, 270):
-        logger.debug(print_list)
+        "TS=((China OR PRC) AND (Guangzhou))")
+    count = 0
+    for print_list in result.request_all_print_lists(-500, 27):
+        # logger.debug(print_list)
         for article in print_list.find_all_articles(range(2010, 2020)):
-            logger.info(article)
+            # logger.info(article)
+            count += 1
+    logger.info(f"found {count}/{result.result_count} articles")

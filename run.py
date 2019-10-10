@@ -8,7 +8,6 @@ Kevin Ni, kevin.ni@nyu.edu.
 """
 import sys
 import time
-import threading
 import webbrowser
 from _flask_app import app
 from _a_big_red_button.support.configuration import BOOT_CFG, RUNNING_IN_DEV_ENV
@@ -28,14 +27,15 @@ if __name__ == '__main__':
     print("\nA BIG RED BUTTON\n"
           "An integrated GUI for the project SOCIAL NETWORK ANALYSIS\n\n"
           "Prof. Yifei Li and Bo Donners, as well as all who have participated\n\n"
-          "Written by Kevin Ni, kevin.ni@nyu.edu, integration and GUI\n"
-          "And by Yiyun Fan, yf855@nyu.edu, crawler interface and original analysis script\n\n"
-          "2019 July 15\n")
+          "Written by Kevin Ni, kevin.ni@nyu.edu, the new crawler and analyser, integration and GUI\n"
+          "And by Yiyun Fan, yf855@nyu.edu, the original crawler and analyser\n\n"
+          "2019 Sep 29\n")
 
     # launch the GUI launcher
-    gui_launcher = GUILauncher()
-    gui_launcher.daemon = True
-    gui_launcher.start()
+    if not RUNNING_IN_DEV_ENV:
+        gui_launcher = GUILauncher()
+        gui_launcher.daemon = True
+        gui_launcher.start()
 
     # launch the backend
     print("starting backend, press Ctrl-C (Control-C on Mac) to stop...")

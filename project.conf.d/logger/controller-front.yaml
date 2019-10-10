@@ -1,0 +1,17 @@
+# logger configuration of tumblr dispatcher
+
+# name of the logger
+name: controller-front
+
+# handlers to be used for this logger
+handlers:
+  - type: RotatingFileHandler
+    arguments:
+      filename: controller-front.log  # relative to the base directory in base configuration
+      maxBytes: 65536 # aka 512 KiB
+      backupCount: 10
+      encoding: utf-8
+  - type: StreamHandler
+    arguments:
+      stream: null  # aka. Python None, which would default to std.err
+

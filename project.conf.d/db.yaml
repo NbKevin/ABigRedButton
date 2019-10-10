@@ -1,0 +1,19 @@
+# This configuration provides mongodb connection parameters
+
+connection:
+  debug:
+    host: 127.0.0.1
+    port: 27017
+  deploy:
+    host: 127.0.0.1
+    port: 27017
+
+
+databases:
+  crawler_persistent: "ABigRedButtonCrawlerPersistent"
+
+collections:
+  session_metadata: "SessionMetadata"
+
+version: "0.2.1"
+

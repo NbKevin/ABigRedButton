@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WoK: Crawler</title>
+    <link rel="stylesheet" href="/static/crawler.css">
+    <script src="/static/crawler.js" type="application/ecmascript"></script>
+</head>
+<body>
+<script type="application/ecmascript">
+  _asdConfig = {
+    useProgressBar: true
+  };
+</script>
+<div class="enclosing-container">
+    <div class="controls-container">
+        <div class="term-box-container">
+            <label>
+                {% if search_term is defined %}
+                    <textarea id="term-box" placeholder="PUT SEARCH TERM HERE">{{ search_term }}</textarea>
+                {% else %}
+                    <textarea id="term-box" placeholder="PUT SEARCH TERM HERE">
+                {% endif %}
+                </textarea>
+            </label>
+        </div>
+        <div class="controls-buttons-container">
+            <div class="controls-buttons-group">
+                <span>First: </span>
+                <button onclick="asd.search();">SEARCH</button>
+            </div>
+            <div class="controls-buttons-group">
+                <span>Then pick year range: </span>
+                <span>from</span>
+                <input id="year-from">
+                <span>to</span>
+                <input id="year-to">
+            </div>
+            <div class="controls-buttons-group">
+                <span>Then: </span>
+                <button onclick="asd.crawlAll();">CRAWL ALL</button>
+                <span>or</span>
+                <button onclick="asd.crawlPartially();">CRAWL PARTIALLY</button>
+                <span>from</span>
+                <input id="crawl-from">
+                <span>to</span>
+                <input id="crawl-to">
+            </div>
+            <div class="controls-buttons-group">
+                <span>Finally: </span>
+                <button onclick="asd.reset();">RESET</button>
+            </div>
+            <div class="controls-buttons-group">
+                <span>Now pick a crawler output:</span>
+                <!--                <label class="file-input-label">-->
+                <!--                    this file should have an extension name of EPZ-->
+                <!--                    <input type="file" id="crawler-output-file" accept=".epz">-->
+                <!--                </label>-->
+                <button id="crawler-output-file" onclick="asd.requestOpenFile()">
+                    NONE SELECTED YET
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="status-container">
+        <div class="status-group">
+            <p class="status-figure" id="status-article-total">N/A</p>
+            <p class="status-label">articles in total</p>
+        </div>
+        <div class="status-group">
+            <p class="status-figure" id="status-article-crawled">N/A</p>
+            <p class="status-label">articles crawled</p>
+        </div>
+        <div class="status-group">
+            <progress id="status-progress"></progress>
+            <p class="status-label" id="status-progress-description"></p>
+        </div>
+    </div>
+    <div class="console-container">
+        <div id="console-title"><p>LOGS</p></div>
+        <div id="console">
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
