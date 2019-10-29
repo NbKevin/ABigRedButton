@@ -5,7 +5,7 @@ flask:
     host: 127.0.0.1
     port: 16560
   auto_detect_deploy_env: true
-  secret: "9834,h5khjdaf9y4hfit3qykasdifasdlf9843t" # safely generated
+  secret: "ejksdfadkjasdkjht#@428392934uysidfhj43#$39aysfuaso@#khjad#jiuad8923jka83293@@#))USHDISy9（*S（D*Sdjkkj" # safely generated
 
 env:
   use_dev_env_variable: true

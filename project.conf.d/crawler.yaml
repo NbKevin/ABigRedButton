@@ -143,6 +143,43 @@ headers:
 
 form:
   search:
+    'product': 'WOS'
+    'search_mode': 'AdvancedSearch'
+    'SID': 'NEED TO BE REPLACED WITH'
+    'action': 'search'
+    'replaceSetId': ''
+    'goToPageLoc': 'SearchHistoryTableBanner'
+    'value(input1)': 'ACTUAL SEARCH TERM'
+    'value(searchOp)': 'search'
+    'value(select2)': 'LA'
+#    'value(input2)': ''
+    'value(select3)': 'DT'
+#    'value(input3)': ''
+    'value(limitCount)': 14
+    'limitStatus': 'collapsed'
+    'ss_lemmatization': 'On'
+    'ss_spellchecking': 'Suggest'
+#    'SinceLastVisit_UTC': ''
+#    'SinceLastVisit_DATE': ''
+#    'period': 'Range+Selection'
+#    'range': 'ALL'
+#    'startYear': 1900
+#    'endYear': 2019
+    'editions': 
+      - 'SCI'
+      - 'SSCI'
+      - 'AHCI'
+      - 'ISTP'
+      - 'ISSHP'
+      - 'BSCI'
+      - 'BHCI'
+      - 'ESCI'
+      - 'CCR'
+      - 'IC'
+    'update_back2search_link_param': 'yes'
+#    'ss_query_language': ''
+    'rs_sort_by': 'PY.D;LD.D;SO.A;VL.D;PG.A;AU.A'
+  searchold:
     'fieldCount': 1
     'action': 'search'
     'product': 'WOS'
@@ -161,8 +198,8 @@ form:
     'SinceLastVisit_DATE': ''
     'period': 'Range Selection'
     'range': 'ALL'
-    'startYear': '2015'
-    'endYear': '2019'
+    #    'startYear': '2015'
+    #    'endYear': '2019'
     'update_back2search_link_param': 'yes'
     'advance_control': 'on'
     # 'ssStatus': 'display:none'

@@ -473,6 +473,8 @@ class ProgressBarController {
 let asd: ASD = null;
 
 window.addEventListener("load", function () {
+    console.log("we're here!");
+
     if (ASD.preventingLeave()) {
         window.addEventListener("beforeunload", (e) => {
             let message = "Make sure before you add";
@@ -488,7 +490,7 @@ window.addEventListener("load", function () {
         });
     }
 
-    if (ASD.parsingFields()) return;
+    // if (ASD.parsingFields()) return;
     asd = new ASD();
 
     window.setInterval(function () {

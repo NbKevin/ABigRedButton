@@ -175,6 +175,7 @@ class Wok(metaclass=Singleton):
             self.__error = False
 
             # process meta
+            from _a_big_red_button.crawler.db_meta import WokPersistentSessionMeta
             meta = WokPersistentSessionMeta.find_by_session(self.session)
             if meta is None:
                 meta = WokPersistentSessionMeta.make_new_for_session(self.session)

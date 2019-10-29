@@ -230,7 +230,7 @@ class WokSearch:
             if error_message is None:
                 # logger.error(f"invalid search response: {req.content}")
                 logger.critical("PROGRAM TERMINATED")
-                raise RuntimeError('invalid response')
+                raise RuntimeError(f'invalid response: "{req.text}"')
             else:
                 logger.error(f"search failed: {error_message}")
                 raise RuntimeError(f'invalid search term: {error_message}')
