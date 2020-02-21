@@ -1,6 +1,6 @@
 """
 This is the log module which prepares logging service and
-offer it to various other components.
+offers it to various other components.
 
 Bin Ni. bn628@nyu.edu.
 """
